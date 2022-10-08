@@ -13,7 +13,7 @@ class helpList(Widget):
     helpBar = Tree("Comandos")
     
     for idx, seq in enumerate(validCommands):
-        helpBar.add(seq).add(helpContents[idx])
+        helpBar.add(seq.capitalize()).add(helpContents[idx])
     
     def render(self) -> RenderableType:
         return Panel(self.helpBar,
