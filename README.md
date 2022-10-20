@@ -19,6 +19,10 @@ python3 main.py
 
 A aplicação simula um sistema operacional executando em um processador de 32 bits baseado em acumulador, projetado na disciplina PCS3216 - Sistemas de Programação.
 
+A aplicação é chamada de PatinhOS, em homenagem ao primeiro computador feito na universidade, Patinho Feio.
+
+![PatinhOS logo](./Patinho.png)
+
 ## Processador
 
 O processador é baseado em um único registrador de propósito geral, o acumulador. Instruções e dados possuem 32 bits, sendo 14 bits de opcode e 18 bits de endereçamento direto (operando).
