@@ -4,9 +4,6 @@ from textual.app import App
 from textual.reactive import Reactive
 from textual.widgets import Footer, Header
 
-# from initialScreen import patinhOs
-# from memoryApps import memoryApps
-# from virtualDisc import virtualDisc
 from pyLib.helpList import helpList
 from pyLib.cmdLine import cmdLine
 from pyLib.interface import interface
