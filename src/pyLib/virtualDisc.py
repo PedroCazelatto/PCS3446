@@ -21,6 +21,8 @@ class _virtualDisc(Widget):
     #         pass
     
     def deleteFile(self, fileName: str) -> bool:
+        if fileName[:6] == "loader":
+            return False
         if os.path.exists("./root/" + fileName):
             os.remove("./root/" + fileName)
             return True
@@ -30,6 +32,8 @@ class _virtualDisc(Widget):
         archives = Tree("root")
         for arch in os.scandir("./root"):
             if arch.is_file():
+                if arch.name[:6] ==  "loader":
+                    continue
                 archives.add(arch.name)
         return Panel(archives,
                      title="Disco (Pasta externa)",
