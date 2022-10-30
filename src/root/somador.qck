@@ -1,0 +1,15 @@
+start: .word 0
+inc: .word 1
+stop: .word 123
+saida: .text '000'
+BEGIN
+    LDA start
+loop:
+    ADD inc
+    TXT saida
+    OUT saida
+    CMP stop
+    BNE loop
+fim:
+    HLT
+END
