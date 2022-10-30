@@ -1,0 +1,51 @@
+baseAddr: .word 1431655765
+instCount: .word 12
+one: .word 1
+zero: .word 0
+inst: .word 0
+ehHlt: .word 0
+ehNeg: .word 786432
+ehNot: .word 3145728
+ehSet: .word 5767168
+halted: .word 0
+instAddr: .word 500
+BEGIN
+    LDA baseAddr
+    STA instAddr
+start:
+    SET 4
+    LDA instAddr
+    SET 0
+    STA inst
+    LDA halted
+    CMP one
+    BEQ saveInst
+    LDA inst
+    CMP ehHlt
+    BEQ aHalt
+    CMP ehNeg
+    BEQ saveInst
+    CMP ehNot
+    BEQ saveInst
+    CMP ehSet
+    BEQ saveInst
+    ADD baseAddr
+    JMP saveInst
+aHalt:
+    LDA one
+    STA halted
+saveInst:
+    LDA inst
+    SET 4
+    STA instAddr
+    SET 0
+    LDA instAddr
+    ADD one
+    STA instAddr
+    LDA instCount
+    SUB one
+    STA instCount
+    CMP zero
+    BNE start
+    HLT
+END
