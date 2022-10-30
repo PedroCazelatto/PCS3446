@@ -7,9 +7,9 @@ from rich.tree import Tree
 from rich.table import Table
 from rich.progress import DownloadColumn, Progress, BarColumn
 
-from textual.reactive import Reactive
 from textual.widget import Widget
-from textual.widgets import Placeholder
+
+# Memory is addressed by words
 
 class _memory(Widget):
     _instance = None
@@ -31,7 +31,7 @@ class _memory(Widget):
         DownloadColumn(binary_units= True),
         auto_refresh= False, expand= True
     )
-    filledBarTask = filledBar.add_task("", total= totalSpace)
+    filledBarTask = filledBar.add_task("", total= totalSpace*4)
     
     memoryRenderable = Table(
         expand= True,
@@ -41,6 +41,9 @@ class _memory(Widget):
     )
     memoryRenderable.add_row(filledBar)
     memoryRenderable.add_row(loadedAppsTree)
+    
+    def readMemory(self, address: int) -> str:
+        return self.actualMemory[address]
     
     def memoryUnifier(self):
         self.unusedSpace.sort()
@@ -57,41 +60,41 @@ class _memory(Widget):
             return str(bytes) + " B"
         return str(bytes/1024) + " KiB"
     
+    # Reads binary and return list of instructions
     def parse_binary(self, filePath: str):
-        fileSize = 0
         instructions = list()
         if os.path.exists(filePath):
             with open(filePath) as file:
                 for line in file:
-                    fileSize += 32
                     instructions.append(line[:-1])
-        return fileSize, instructions
+        return instructions
 
     # Missing LOADER call
     def loadApp(self, appName: str) -> bool:
         if self.loadedAppsList.count(appName) == 0:
             if os.path.exists("./root/" + appName):
-                fileSize, file = self.parse_binary("./root/" + appName)
+                file = self.parse_binary("./root/" + appName)
+                fileLen = len(file)
                 memoryStartPos = -1
                 for idx, seq in enumerate(self.unusedSpace):
-                    if seq[1] >= fileSize:
+                    if seq[1] >= fileLen:
                         memoryStartPos = seq[0]
-                        if seq[1] == fileSize:
+                        if seq[1] == fileLen:
                             self.unusedSpace.pop(idx)
                         else:
-                            self.unusedSpace[idx][0] += fileSize
-                            self.unusedSpace[idx][1] -= fileSize
+                            self.unusedSpace[idx][0] += fileLen
+                            self.unusedSpace[idx][1] -= fileLen
                         break
                 if memoryStartPos == -1:
                     return False
                 self.loadedAppsList.append(appName)
                 self.loadedAppsInfo.append(
-                    fileSize,
+                    fileLen,
                     memoryStartPos
                 )
-                for i in range(fileSize):
+                for i in range(fileLen):
                     self.actualMemory[memoryStartPos + i] = file[i]
-                self.filledSpace += fileSize
+                self.filledSpace += fileLen
                 self.refresh()
                 return True
         return False
@@ -111,7 +114,7 @@ class _memory(Widget):
         return True
     
     def render(self) -> RenderableType:
-        self.filledBar.update(self.filledBarTask, completed= self.filledSpace)
+        self.filledBar.update(self.filledBarTask, completed= self.filledSpace*4)
         for i, app in enumerate(self.loadedAppsList):
             self.loadedAppsTree.add(app + " [" + self.getBinaryWithSuffix(self.loadedAppsInfo[i][0]) + "]")
         return Panel(self.memoryRenderable,
