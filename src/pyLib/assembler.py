@@ -1,31 +1,6 @@
 import os
 
-operations = [
-    "HLT", #  0 Stop execution
-    "LDA", #  1 ACC = MEM[oper]
-    "STA", #  2 MEM[oper] = ACC
-    "NEG", #  3 ACC = -ACC
-    "ADD", #  4 ACC = ACC + MEM[oper]
-    "SUB", #  5 ACC = ACC - MEM[oper]
-    "MUL", #  6 ACC = ACC * MEM[oper]
-    "DIV", #  7 ACC = ACC / MEM[oper]
-    "REM", #  8 ACC = ACC % MEM[oper]
-    "POW", #  9 ACC = ACC ** oper
-    "AND", # 10 ACC = ACC and MEM[oper]
-    "ORR", # 11 ACC = ACC or MEM[oper]
-    "NOT", # 12 ACC = not ACC
-    "XOR", # 13 ACC = ACC xor MEM[oper]
-    "TXT", # 14 MEM[oper] = ASCII(ACC) 
-    "WRD", # 15 ACC = number(MEM[oper])
-    "INP", # 16 To MEM[oper], first byte indicates how many ASCII chars
-    "OUT", # 17 From MEM[oper], first byte indicates how many ASCII chars
-    "CMP", # 18 N and Z acording to ACC - MEM[oper]
-    "BEQ", # 19 PC = oper if Z = 1
-    "BNE", # 20 PC = oper if Z = 0
-    "JMP", # 21 PC = oper
-    "SET", # 22 Flags (I N Z) = oper
-    # "MOV", # ACC = oper
-]
+from pyLib.infoLists import operations
 
 def toBin(integer: int, size: int) -> str:
     binary = bin(integer)[2:]
