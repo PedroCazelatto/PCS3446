@@ -5,22 +5,22 @@ from rich.console import RenderableType
 
 from textual.widget import Widget
 
-from pyLib.memory import memory
-from pyLib.virtualDisc import virtualDisc
-from pyLib.processAdmin import processAdmin
+import pyLib.memory
+import pyLib.virtualDisc
+import pyLib.processAdmin
 
 class _interface(Widget):
     _instance = None
         
     def render(self) -> RenderableType:
-        virtualDisc().refresh()
-        memory().refresh()
-        processAdmin().refresh()
+        pyLib.virtualDisc.virtualDisc().refresh()
+        pyLib.memory.memory().refresh()
+        pyLib.processAdmin.processAdmin().refresh()
         layout = Layout()
         layout.split_row(
-            Layout(virtualDisc()),
-            Layout(memory()),
-            Layout(processAdmin())
+            Layout(pyLib.virtualDisc.virtualDisc()),
+            Layout(pyLib.memory.memory()),
+            Layout(pyLib.processAdmin.processAdmin())
         )
         return Panel(layout,
                      border_style= Style(color= "yellow1"))

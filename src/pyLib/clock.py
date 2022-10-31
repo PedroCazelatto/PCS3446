@@ -1,8 +1,8 @@
 from time import sleep
 from threading import Thread
 
-from pyLib.interface import interface
-from pyLib.processAdmin import processAdmin
+import pyLib.interface
+import pyLib.processAdmin
 
 class _clock():
     _instance = None
@@ -11,8 +11,8 @@ class _clock():
     
     def startClock(self):
         while self.runClock:
-            processAdmin().clockRise()
-            interface().refresh()
+            pyLib.processAdmin.processAdmin().clockRise()
+            pyLib.interface.interface().refresh()
             sleep(self.clockPeriod)
             
     def start(self):

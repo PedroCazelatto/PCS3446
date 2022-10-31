@@ -4,9 +4,10 @@ from textual.app import App
 from textual.reactive import Reactive
 from textual.widgets import Footer, Header
 
-from pyLib.helpList import helpList
-from pyLib.cmdLine import cmdLine
-from pyLib.interface import interface
+import pyLib.helpList
+import pyLib.cmdLine
+import pyLib.interface
+import pyLib.memory
 
 class screen(App):
     show_help = Reactive(False)
@@ -31,7 +32,7 @@ class screen(App):
         footer = Footer()
         await self.view.dock(footer, edge="bottom")
 
-        self.helpBar = helpList()
+        self.helpBar = pyLib.helpList.helpList()
         await self.view.dock(self.helpBar, edge= "right", size= self.helpBarSize, z= 1)
         
         self.helpBar.layout_offset_x = self.helpBarSize
@@ -41,4 +42,6 @@ class screen(App):
         homeGrid.add_row("row1")
         homeGrid.add_row("row2", size= 12)
         homeGrid.add_column("col")
-        homeGrid.place(interface(), cmdLine())
+        homeGrid.place(pyLib.interface.interface(), pyLib.cmdLine.cmdLine())
+        
+        pyLib.memory.memory().loadLoader()

@@ -6,7 +6,7 @@ from rich.tree import Tree
 
 from textual.widget import Widget
 
-from pyLib.infoLists import *
+from pyLib.infoLists import validCommands, helpContents
 
 class helpList(Widget):
     

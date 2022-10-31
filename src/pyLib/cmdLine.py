@@ -12,10 +12,12 @@ from textual import events
 from textual.reactive import Reactive
 from textual.widget import Widget
 
-from pyLib.infoLists import *
-from pyLib.interface import interface
-from pyLib.memory import memory
-from pyLib.virtualDisc import virtualDisc
+import pyLib.memory
+import pyLib.assembler
+import pyLib.interface
+import pyLib.virtualDisc
+
+from pyLib.infoLists import validCommands, keysToIgnore
 
 class _cmdLine(Widget):
     _instance = None
@@ -96,22 +98,30 @@ class _cmdLine(Widget):
         return
     
     def cmdAssemble(self, cmd: iter):
-        self.printError("Comando não implementado")
+        if len(cmd) == 2:
+            returned = pyLib.assembler.assemble(cmd[1])
+            if returned[0]:
+                self.printSuccess(returned[1])
+                return
+            self.printError(returned[1])
+            return
+        self.printError("Argumentos errados")
         return
     
     def cmdLoad(self, cmd: iter):
         if len(cmd) == 2:
-            if memory().loadApp(cmd[1]):
-                self.printSuccess("Loaded " + cmd[1])
+            returned = pyLib.memory.memory().loadApp(cmd[1])
+            if returned[0]:
+                self.printSuccess(returned[1])
                 return
-            self.printError("Falha ao carregar: " + cmd[1])
+            self.printError(returned[1])
             return
         self.printError("Argumentos errados")
         return
     
     def cmdUnload(self, cmd: iter):
         if len(cmd) == 2:
-            if memory().unloadApp(cmd[1]):
+            if pyLib.memory.memory().unloadApp(cmd[1]):
                 self.printSuccess("Unloaded " + cmd[1])
                 return
             self.printError("Falha ao descarregar: " + cmd[1])
@@ -133,9 +143,9 @@ class _cmdLine(Widget):
     
     def cmdDelete(self, cmd: iter):
         if len(cmd) == 2:
-            if virtualDisc().deleteFile(cmd[1]):
+            if pyLib.virtualDisc.virtualDisc().deleteFile(cmd[1]):
                 self.printSuccess("Deleted " + cmd[1])
-                interface().refresh()
+                pyLib.interface.interface().refresh()
                 return
             self.printError("Falha ao deletar: " + cmd[1])
             return
@@ -169,66 +179,6 @@ class _cmdLine(Widget):
             self.cmdDelete(cmd)
         elif cmd[0] == "clear":
             self.cmdClear(cmd)
-        # elif cmd[0] == "assemble":
-        #     if cmd.count("-o") == 0:
-        #         if len(cmd) > 2:
-        #             self.printedHistory.append(
-        #                 Text("Argumentos demais: " + str(cmd[2:]), style= self.errorStyle)
-        #             )
-        #         else:
-        #             result = assemble("./root/" + cmd[1])
-        #             if result == "Assembly successful":
-        #                 self.printedHistory.append(
-        #                     Text("Assembled " + cmd[1], style= self.goodStyle)
-        #                 )
-        #                 interface().refresher()
-        #             else:
-        #                 self.printedHistory.append(
-        #                     Text(result, style= errorStyle)
-        #                 )
-        #     else:
-        #         if len(cmd) > 4:
-        #             self.printedHistory.append(
-        #                 Text("Argumentos demais: " + str(cmd[4:]), style= self.errorStyle)
-        #             )
-        #         else:
-        #             result = assemble("./root/" + cmd[1], "./root/" + cmd[3])
-        #             if result == "Assembly successful":
-        #                 self.printedHistory.append(
-        #                     Text("Assembled " + cmd[1] + " into " + cmd[3], style= self.goodStyle)
-        #                 )
-        #                 interface().refresher()
-        #             else:
-        #                 self.printedHistory.append(
-        #                     Text(result, style= errorStyle)
-        #                 )
-        # elif cmd[0] == "link":
-        #     if cmd.count("-o") == 0:
-        #         toLink = list()
-        #         for k in range(1, len(cmd)):
-        #             toLink.append("./root/" + cmd[k])
-        #         result = link(toLink)
-        #         if result == "Linking successful":
-        #             self.printedHistory.append(
-        #                 Text("Linked " + str(cmd[1:]), style= self.goodStyle)
-        #             )
-        #         else:
-        #             self.printedHistory.append(
-        #                 Text(result, style= errorStyle)
-        #             )
-        #     else:
-        #         toLink = list()
-        #         for k in range(1, len(cmd)-2):
-        #             toLink.append("./root/" + cmd[k])
-        #         result = link(toLink, cmd[-1])
-        #         if result == "Linking successful":
-        #             self.printedHistory.append(
-        #                 Text("Linked " + str(cmd[1:-2]) + " into " + cmd[-1], style= self.goodStyle)
-        #             )
-        #         else:
-        #             self.printedHistory.append(
-        #                 Text(result, style= errorStyle)
-        #             )
     
     def on_focus(self) -> None:
         self.line = Text("cmd> ").append(self.cmdText).append("_", style=Style(blink=True))

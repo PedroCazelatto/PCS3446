@@ -1,6 +1,6 @@
 import os
 
-from pyLib.infoLists import operations
+import pyLib.infoLists
 
 def toBin(integer: int, size: int) -> str:
     binary = bin(integer)[2:]
@@ -68,7 +68,7 @@ def assemble(inputFile: str):
                 realText = ' '.join(line[2:])
                 labelValues.append([len(realText) - 2, list(realText[1:-1].encode('ascii'))])
                 continue
-        if operations.count(line[0]) == 0:
+        if pyLib.infoLists.operations.count(line[0]) == 0:
             return [False, "Wrong instruction at line " + str(idx + 1)]
         instructions.append(line)
     
@@ -94,7 +94,7 @@ def assemble(inputFile: str):
         else:
             if len(inst) != 2:
                 return [False, "Too much args at " + str(inst)]
-        instructions[idx][0] = operations.index(inst[0])
+        instructions[idx][0] = pyLib.infoLists.operations.index(inst[0])
         if not isinstance(instructions[idx][1], int):
             if labels.count(inst[1]) == 0:
                 return [False, "Couldn't find label " + inst[1]]
