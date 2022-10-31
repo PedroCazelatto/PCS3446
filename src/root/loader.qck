@@ -5,8 +5,9 @@ zero: .word 0
 inst: .word 0
 ehHlt: .word 0
 ehNeg: .word 786432
-ehNot: .word 3145728
-ehSet: .word 5767168
+ehNot: .word 2883584
+ehSet: .word 5505024
+operZ: .word 16515072
 halted: .word 0
 instAddr: .word 500
 BEGIN
@@ -27,8 +28,10 @@ start:
     BEQ saveInst
     CMP ehNot
     BEQ saveInst
+    AND operZ
     CMP ehSet
     BEQ saveInst
+    LDA inst
     ADD baseAddr
     JMP saveInst
 aHalt:

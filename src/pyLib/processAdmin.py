@@ -8,17 +8,32 @@ from rich.console import RenderableType
 
 from textual.widget import Widget
 
+import pyLib.processor
+
 # possibleStates = ["Pronto", "Aguardando Entrada", "Bloqueado"]
 
 class process():
-    
-    def __init__(self, processName: str):
+    def __init__(self, processName: str, baseState: str, baseAddress: int):
         self.name = processName
-        self.state = "Pronto"
+        self.state = baseState
+        self.programCounter = baseAddress
+        self.accumulator = 0
+        self.halted = False
+        self.flagI = 0
+        self.flagN = 0
+        self.flagZ = 0
         return
     
-    def changeState(self, newState: str):
-        self.state = newState
+    def getStatus(self):
+        return [self.programCounter, self.accumulator, self.halted, self.flagI, self.flagN, self.flagZ]
+    
+    def setStatus(self, status: list):
+        self.programCounter = status[0]
+        self.accumulator = status[1]
+        self.halted = status[2]
+        self.flagI = status[3]
+        self.flagN = status[4]
+        self.flagZ = status[5]
         return
 
 class _processAdmin(Widget):
@@ -29,24 +44,63 @@ class _processAdmin(Widget):
     
     boldStyle = Style(bold= True)
     
-    actualProcess = "Teste"
+    waitingProcess = process("Espera", "Bloqueado", -1)
+    actualProcess = waitingProcess
     
     def clockRise(self):
-        # call clockRise at processor
-        if self.isLoading:
-            return
-        self.countCycles()
+        if not self.isLoading:
+            self.countCycles()
+        pyLib.processor.cpu().processInstruction()
         return
     
     def countCycles(self):
         self.cyclesToChange -= 1
         if self.cyclesToChange == 0:
-            self.cyclesToChange = 5
+            if self.actualProcess.name == "Espera":
+                self.cyclesToChange = 2
+            else:
+                self.cyclesToChange = 10
+            self.changeProcess()
         self.refresh()
         return
     
-    def addProcess(self, processName: str):
-        self.processList.insert(0, process(processName))
+    def changeProcess(self):
+        if self.actualProcess.name == "Loader":
+            self.isLoading = False
+            self.processList.append(process("Loader", "Bloqueado", 0))
+        self.actualProcess.setStatus(pyLib.processor.cpu().getStatus())
+        if self.processList[0].state == "Pronto":
+            nextProcess = self.processList[0]
+            self.processList.pop(0)
+            if not self.actualProcess.halted:
+                self.processList.append(self.actualProcess)
+                self.sortProcess()
+        else:
+            if self.actualProcess.state == "Aguardando Entrada" or self.actualProcess.halted:
+                nextProcess = self.waitingProcess
+            else:
+                nextProcess = self.actualProcess
+        self.actualProcess = nextProcess
+        self.refresh()
+        return
+    
+    def addProcess(self, processName: str, state: str, baseAddress: int):
+        self.processList.insert(0, process(processName, state, baseAddress))
+        return
+    
+    def runLoader(self):
+        self.isLoading = True
+        if self.actualProcess.name != "Espera":
+            self.actualProcess.setStatus(pyLib.processor.cpu().getStatus())
+            self.processList.append(self.actualProcess)
+            self.sortProcess()
+        for idx, process in enumerate(self.processList):
+            if process.name == "Loader":
+                nextProcessIdx = idx
+                break
+        self.actualProcess = self.processList[nextProcessIdx]
+        self.processList.pop(idx)
+        pyLib.processor.cpu().setStatus([0, 0, False, 0, 0, 0])
         return
     
     def sortProcess(self):
@@ -73,10 +127,13 @@ class _processAdmin(Widget):
         )
         renderable.add_column(justify= "center", ratio= 2)
         renderable.add_column(justify= "center", ratio= 1)
-        if self.actualProcess == "Espera":
+        if self.actualProcess.name == "Espera":
             renderable.add_row("Esperando", "0")
             return renderable
-        renderable.add_row(self.actualProcess, str(self.cyclesToChange))
+        if self.actualProcess.name == "Loader":
+            renderable.add_row("Loading", "-")
+            return renderable
+        renderable.add_row(self.actualProcess.name, str(self.cyclesToChange))
         return renderable
     
     def getProcessRenderable(self, process: process) -> Table:
