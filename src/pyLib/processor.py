@@ -3,12 +3,10 @@ import pyLib.memory
 import pyLib.processAdmin
 import pyLib.generalProcess
 
-from pyLib.infoLists import operations
+from pyLib.configs import *
+from pyLib.usefulFuncs import *
 
-def toBin(integer: int) -> str:
-    binary = bin(integer)[2:]
-    leadZeros = '0' * (8 - len(binary))
-    return leadZeros + binary
+from pyLib.infoLists import operations
 
 class _cpu():
     _instance = None
@@ -24,12 +22,10 @@ class _cpu():
     
     def processInstruction(self):
         if self.actualProcess.halted or self.actualProcess.programCounter < 0:
-            # pyLib.cmdLine.cmdLine().printExit("Parado")
             return
         instruction = pyLib.memory.memory().readMemory(self.actualProcess.programCounter)
-        opcode = operations[int(instruction[:14], base= 2)]
-        operand = int(instruction[14:], base= 2)
-        # pyLib.cmdLine.cmdLine().printSuccess("Executing " + opcode)
+        opcode = operations[int(instruction[:5], base= 2)]
+        operand = int(instruction[5:], base= 2)
         if opcode == "HLT":
             self.actualProcess.halted = True
             pyLib.cmdLine.cmdLine().printSuccess(self.actualProcess.name + " terminou de executar")
@@ -37,8 +33,6 @@ class _cpu():
             return
         elif opcode == "LDA":
             if self.actualProcess.flagI == 0:
-                # pyLib.cmdLine.cmdLine().printSuccess(str(operand))
-                # pyLib.cmdLine.cmdLine().printExit(pyLib.memory.memory().readMemory(operand))
                 self.actualProcess.accumulator = int(pyLib.memory.memory().readMemory(operand), base= 2)
             else:
                 address = int(pyLib.memory.memory().readMemory(operand), base= 2)
@@ -72,9 +66,9 @@ class _cpu():
         elif opcode == "TXT":
             number = str(self.actualProcess.accumulator)
             textLen = len(number)
-            word = toBin(textLen)
+            word = toBin(textLen, 8)
             for i in range(textLen):
-                char = toBin(ord(number[i]))
+                char = toBin(ord(number[i]), 8)
                 if i % 4 != 3:
                     word += char
                 else:
@@ -83,8 +77,8 @@ class _cpu():
                     word = ''
             if textLen % 4 != 3:
                 word += (('0' * 8) * (3 - textLen % 4))
-                value = int(word, base= 2)
-                pyLib.memory.memory().writeMemory(operand + textLen // 4, value)
+            value = int(word, base= 2)
+            pyLib.memory.memory().writeMemory(operand + textLen // 4, value)
         elif opcode == "WRD":
             firstWord = pyLib.memory.memory().readMemory(operand)
             numberChars = int(firstWord[:8], base= 2)
@@ -124,7 +118,7 @@ class _cpu():
             self.actualProcess.programCounter = operand
             return
         elif opcode == "SET":
-            bits = toBin(operand)[-3:]
+            bits = toBin(operand, 8)[-3:]
             self.actualProcess.flagI = int(bits[0])
             self.actualProcess.flagN = int(bits[1])
             self.actualProcess.flagZ = int(bits[2])

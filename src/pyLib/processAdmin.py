@@ -51,15 +51,12 @@ class _processAdmin(Widget):
         return False
     
     def createProcess(self, processName: str, state: str, baseAddress: int):
-        pyLib.cmdLine.cmdLine().printSuccess("Added process " + processName)
         self.processList.insert(0, pyLib.generalProcess.process(processName, state, baseAddress))
         return
     
     def executeNextProcess(self):
-        # pyLib.cmdLine.cmdLine().printExit("Next process!")
         if len(self.processList) == 0:
             pyLib.processor.cpu().setProcess(self.waitingProcess)
-            # pyLib.cmdLine.cmdLine().printError(str(list(proc.name for proc in pyLib.processAdmin.processAdmin().processList)))
             return
         if self.processList[0].state != "Pronto":
             pyLib.processor.cpu().setProcess(self.waitingProcess)
@@ -122,7 +119,7 @@ class _processAdmin(Widget):
         if actualProcess.name == "Loader":
             renderable.add_row("Loading", "-")
             return renderable
-        renderable.add_row(actualProcess.name, str(self.cyclesToChange))
+        renderable.add_row(actualProcess.name, str(self.cyclesRemaining))
         return renderable
     
     def getProcessRenderable(self, process: pyLib.generalProcess.process) -> Table:

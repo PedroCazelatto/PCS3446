@@ -1,4 +1,4 @@
-from rich.layout import Layout
+import os
 
 from textual.app import App
 from textual.reactive import Reactive
@@ -44,4 +44,5 @@ class screen(App):
         homeGrid.add_column("col")
         homeGrid.place(pyLib.interface.interface(), pyLib.cmdLine.cmdLine())
         
-        pyLib.memory.memory().loadLoader()
+        if not pyLib.memory.memory().loadLoader():
+            os.exit()

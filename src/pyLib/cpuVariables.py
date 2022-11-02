@@ -8,14 +8,9 @@ from rich.text import Text
 
 from textual.widget import Widget
 
+from pyLib.usefulFuncs import *
 import pyLib.processor
 import pyLib.generalProcess
-
-def toHex(integer: int) -> str:
-    hexa = hex(integer)[2:].upper()
-    leadZeros = '0' * (8 - len(hexa))
-    expandedHex = leadZeros + hexa
-    return expandedHex[:4] + ' ' + expandedHex[4:]
 
 class _cpuVariables(Widget):
     _instance = None
@@ -28,7 +23,7 @@ class _cpuVariables(Widget):
     
     def render(self) -> RenderableType:
         variables = [
-            toHex(pyLib.processor.cpu().actualProcess.accumulator),
+            toHex(pyLib.processor.cpu().actualProcess.accumulator, 8),
             str(pyLib.processor.cpu().actualProcess.programCounter),
             str(pyLib.processor.cpu().actualProcess.flagI) + " " + str(pyLib.processor.cpu().actualProcess.flagN) + " " + str(pyLib.processor.cpu().actualProcess.flagZ)
         ]

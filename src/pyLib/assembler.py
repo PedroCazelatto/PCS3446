@@ -1,15 +1,8 @@
-import os
-
+from pyLib.configs import *
+from pyLib.usefulFuncs import *
 import pyLib.infoLists
 
-def toBin(integer: int, size: int) -> str:
-    binary = bin(integer)[2:]
-    leadZeros = '0' * (size - len(binary))
-    return leadZeros + binary
-
 def assemble(inputFile: str):
-    if not os.path.exists("./root/" + inputFile):
-        return [False, "Arquivo inexistente: " + inputFile]
     
     file = list()
     
@@ -23,7 +16,7 @@ def assemble(inputFile: str):
     began = False
     ended = False
     
-    with open("./root/" + inputFile) as f:
+    with open(inputFile) as f:
         for line in f:
             line = line.replace('\n', '')
             file.append(line)
@@ -107,9 +100,9 @@ def assemble(inputFile: str):
                 
     outputFile = inputFile[:-4] + ".fita"
     
-    with open("./root/" + outputFile, 'wt') as f:
+    with open(outputFile, 'wt') as f:
         for inst in instructions:
-            f.write(toBin(inst[0], 14) + toBin(inst[1], 18) + "\n")
+            f.write(toBin(inst[0], 5) + toBin(inst[1], 27) + "\n")
         for value in labelValues:
             if isinstance(value, str):
                 f.write(toBin(int(value), 32) + "\n")
@@ -125,4 +118,4 @@ def assemble(inputFile: str):
             if bytesToComplete > 0:
                 f.write(toBin(0, bytesToComplete * 8) + "\n")
     
-    return [True, "Assembled " + inputFile + " into " + outputFile]
+    return [True, outputFile[7:] + " criado"]
