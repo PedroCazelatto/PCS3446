@@ -1,6 +1,7 @@
 import pyLib.cmdLine
 import pyLib.memory
 import pyLib.processAdmin
+import pyLib.generalProcess
 
 from pyLib.infoLists import operations
 
@@ -12,63 +13,64 @@ def toBin(integer: int) -> str:
 class _cpu():
     _instance = None
     
-    programCounter = -1
-    accumulator = 0
-    halted = True
+    actualProcess = pyLib.generalProcess.process("Espera", "Bloqueado", -1)
     
-    flagI = 0
-    flagN = 0
-    flagZ = 0
+    def getProcess(self):
+        return self.actualProcess
     
-    def getStatus(self):
-        return [self.programCounter, self.accumulator, self.halted, self.flagI, self.flagN, self.flagZ]
-    
-    def setStatus(self, status: list):
-        self.programCounter = status[0]
-        self.accumulator = status[1]
-        self.halted = status[2]
-        self.flagI = status[3]
-        self.flagN = status[4]
-        self.flagZ = status[5]
+    def setProcess(self, process: pyLib.generalProcess.process):
+        self.actualProcess = process
         return
     
     def processInstruction(self):
-        if self.halted or self.programCounter < 0:
+        if self.actualProcess.halted or self.actualProcess.programCounter < 0:
+            # pyLib.cmdLine.cmdLine().printExit("Parado")
             return
-        instruction = pyLib.memory.memory().readMemory(self.programCounter)
+        instruction = pyLib.memory.memory().readMemory(self.actualProcess.programCounter)
         opcode = operations[int(instruction[:14], base= 2)]
         operand = int(instruction[14:], base= 2)
-        pyLib.cmdLine.cmdLine().printExit(opcode + " " + instruction[14:])
-        pyLib.cmdLine.cmdLine().refresh()
+        # pyLib.cmdLine.cmdLine().printSuccess("Executing " + opcode)
         if opcode == "HLT":
-            self.halted = True
-            pyLib.processAdmin.processAdmin().changeProcess()
+            self.actualProcess.halted = True
+            pyLib.cmdLine.cmdLine().printSuccess(self.actualProcess.name + " terminou de executar")
+            pyLib.processAdmin.processAdmin().stopCurrentProcess()
+            return
         elif opcode == "LDA":
-            self.accumulator = int(pyLib.memory.memory().readMemory(operand), base= 2)
+            if self.actualProcess.flagI == 0:
+                # pyLib.cmdLine.cmdLine().printSuccess(str(operand))
+                # pyLib.cmdLine.cmdLine().printExit(pyLib.memory.memory().readMemory(operand))
+                self.actualProcess.accumulator = int(pyLib.memory.memory().readMemory(operand), base= 2)
+            else:
+                address = int(pyLib.memory.memory().readMemory(operand), base= 2)
+                self.actualProcess.accumulator = int(pyLib.memory.memory().readMemory(address), base= 2)
         elif opcode == "STA":
-            pyLib.memory.memory().writeMemory(operand, self.accumulator)
+            if self.actualProcess.flagI == 0:
+                pyLib.memory.memory().writeMemory(operand, self.actualProcess.accumulator)
+            else:
+                address = int(pyLib.memory.memory().readMemory(operand), base= 2)
+                pyLib.memory.memory().writeMemory(address, self.actualProcess.accumulator)
         elif opcode == "NEG":
-            self.accumulator = - self.accumulator
+            self.actualProcess.accumulator = - self.actualProcess.accumulator
         elif opcode == "ADD":
-            self.accumulator += int(pyLib.memory.memory().readMemory(operand), base= 2)
+            self.actualProcess.accumulator += int(pyLib.memory.memory().readMemory(operand), base= 2)
         elif opcode == "SUB":
-            self.accumulator -= int(pyLib.memory.memory().readMemory(operand), base= 2)
+            self.actualProcess.accumulator -= int(pyLib.memory.memory().readMemory(operand), base= 2)
         elif opcode == "MUL":
-            self.accumulator *= int(pyLib.memory.memory().readMemory(operand), base= 2)
+            self.actualProcess.accumulator *= int(pyLib.memory.memory().readMemory(operand), base= 2)
         elif opcode == "DIV":
-            self.accumulator //= int(pyLib.memory.memory().readMemory(operand), base= 2)
+            self.actualProcess.accumulator //= int(pyLib.memory.memory().readMemory(operand), base= 2)
         elif opcode == "REM":
-            self.accumulator %= int(pyLib.memory.memory().readMemory(operand), base= 2)
+            self.actualProcess.accumulator %= int(pyLib.memory.memory().readMemory(operand), base= 2)
         elif opcode == "AND":
-            self.accumulator &= int(pyLib.memory.memory().readMemory(operand), base= 2)
+            self.actualProcess.accumulator &= int(pyLib.memory.memory().readMemory(operand), base= 2)
         elif opcode == "ORR":
-            self.accumulator |= int(pyLib.memory.memory().readMemory(operand), base= 2)
+            self.actualProcess.accumulator |= int(pyLib.memory.memory().readMemory(operand), base= 2)
         elif opcode == "NOT":
-            self.accumulator = ~ self.accumulator
+            self.actualProcess.accumulator = ~ self.actualProcess.accumulator
         elif opcode == "XOR":
-            self.accumulator ^= int(pyLib.memory.memory().readMemory(operand), base= 2)
+            self.actualProcess.accumulator ^= int(pyLib.memory.memory().readMemory(operand), base= 2)
         elif opcode == "TXT":
-            number = str(self.accumulator)
+            number = str(self.actualProcess.accumulator)
             textLen = len(number)
             word = toBin(textLen)
             for i in range(textLen):
@@ -92,7 +94,7 @@ class _cpu():
             number = 0
             for i in range(numberChars):
                 number = 10*number + int(chr(int(word[8*(i+1):8*(i+2)], base= 2)))
-            self.accumulator = number
+            self.actualProcess.accumulator = number
         elif opcode == "INP":
             pass
         elif opcode == "OUT":
@@ -106,24 +108,27 @@ class _cpu():
                 toPrint += chr(int(word[8*(i+1):8*(i+2)], base= 2))
             pyLib.cmdLine.cmdLine().printExit(toPrint)
         elif opcode == "CMP":
-            if self.accumulator - int(pyLib.memory.memory().readMemory(operand), base= 2) == 0:
-                self.flagZ = 1
-            if self.accumulator - int(pyLib.memory.memory().readMemory(operand), base= 2) < 0:
-                self.flagN = 1
+            if self.actualProcess.accumulator - int(pyLib.memory.memory().readMemory(operand), base= 2) == 0:
+                self.actualProcess.flagZ = 1
+            if self.actualProcess.accumulator - int(pyLib.memory.memory().readMemory(operand), base= 2) < 0:
+                self.actualProcess.flagN = 1
         elif opcode == "BEQ":
-            if self.flagZ == 1:
-                self.programCounter = operand
+            if self.actualProcess.flagZ == 1:
+                self.actualProcess.programCounter = operand
+                return
         elif opcode == "BNE":
-            if self.flagZ == 0:
-                self.programCounter = operand
+            if self.actualProcess.flagZ == 0:
+                self.actualProcess.programCounter = operand
+                return
         elif opcode == "JMP":
-            self.programCounter = operand
+            self.actualProcess.programCounter = operand
+            return
         elif opcode == "SET":
-            bits = bin(operand)[-3:]
-            self.flagI = bits[0]
-            self.flagN = bits[1]
-            self.flagZ = bits[2]
-        self.programCounter += 1
+            bits = toBin(operand)[-3:]
+            self.actualProcess.flagI = int(bits[0])
+            self.actualProcess.flagN = int(bits[1])
+            self.actualProcess.flagZ = int(bits[2])
+        self.actualProcess.programCounter += 1
         return
 
 def cpu():
