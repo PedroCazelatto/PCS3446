@@ -1,4 +1,4 @@
-# possibleStates = ["Pronto", "Entrada", "Bloqueado", "Esperando"]
+# possibleStates = ["Executando", "Pronto", "Entrada", "Bloqueado"]
 
 class process():
     def __init__(self, processName: str, baseState: str, baseAddress: int):

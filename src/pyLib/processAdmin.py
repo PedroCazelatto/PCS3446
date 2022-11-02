@@ -8,6 +8,8 @@ from rich.console import RenderableType
 
 from textual.widget import Widget
 
+from pyLib.configs import *
+
 import pyLib.processor
 import pyLib.generalProcess
 import pyLib.cmdLine
@@ -52,13 +54,29 @@ class _processAdmin(Widget):
     
     def createProcess(self, processName: str, state: str, baseAddress: int):
         self.processList.insert(0, pyLib.generalProcess.process(processName, state, baseAddress))
+        self.sortProcess()
+        return
+    
+    def countExecutingProcess(self):
+        total = 0
+        for process in self.processList:
+            if process.state == "Executando":
+                total += 1
+        return total
+    
+    def selectExecutionProcess(self):
+        for i in range(multiprogrammingDegree):
+            if self.processList[i].state == "Pronto":
+                self.processList[i].state = "Executando"
         return
     
     def executeNextProcess(self):
         if len(self.processList) == 0:
             pyLib.processor.cpu().setProcess(self.waitingProcess)
             return
-        if self.processList[0].state != "Pronto":
+        if self.countExecutingProcess != multiprogrammingDegree:
+            self.selectExecutionProcess()
+        if self.processList[0].state != "Executando":
             pyLib.processor.cpu().setProcess(self.waitingProcess)
             return
         pyLib.processor.cpu().setProcess(self.processList[0])
@@ -89,17 +107,20 @@ class _processAdmin(Widget):
         return
     
     def sortProcess(self):
+        executingProcess = list()
         readyProcess = list()
         awaitingProcess = list()
         blockedProcess = list()
         for process in self.processList:
-            if process.state == "Pronto":
+            if process.state == "Executando":
+                executingProcess.append(process)
+            elif process.state == "Pronto":
                 readyProcess.append(process)
-            elif process.state == "Aguardando Entrada":
+            elif process.state == "Entrada":
                 awaitingProcess.append(process)
             else:
                 blockedProcess.append(process)
-        self.processList = readyProcess + awaitingProcess + blockedProcess
+        self.processList = executingProcess + readyProcess + awaitingProcess + blockedProcess
         return
     
     def getActualProcessRenderable(self) -> Table:

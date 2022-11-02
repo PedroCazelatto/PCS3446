@@ -163,7 +163,7 @@ class _cmdLine(Widget):
             self.printError("Aplicativo já está em execução")
             return
         if not pyLib.memory.memory().isLoaded(cmd[1]):
-            self.cmdLoad(cmd)
+            self.cmdLoad(["load", cmd[1] + ".fita"])
         appInfo = pyLib.memory.memory().getAppInfo(cmd[1])
         pyLib.processAdmin.processAdmin().createProcess(cmd[1], "Pronto", appInfo[0])
         self.printSuccess("Adicionado " + cmd[1] + " a fila de processos") 
