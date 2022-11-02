@@ -5,7 +5,7 @@ helpContents = [
     "Mostra programa na memória",
     "Adiciona processo",
     "Cria arquivo em disco",
-    "Edita arquivo em disco",
+    # "Edita arquivo em disco",
     "Apaga arquivo em disco",
     "Limpa o terminal",
 ]
@@ -17,7 +17,7 @@ validCommands = [
     "dump",
     "run",
     "create",
-    "edit",
+    # "edit",
     "delete",
     "clear",
 ]

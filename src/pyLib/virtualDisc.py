@@ -1,32 +1,25 @@
 import os
 
-from rich.align import Align
 from rich.style import Style
 from rich.panel import Panel
 from rich.console import RenderableType
 from rich.tree import Tree
 
-from textual.reactive import Reactive
 from textual.widget import Widget
-
-import os
 
 class _virtualDisc(Widget):
     _instance = None
     
-    # def createFile(self, fileName: str):
-    #     if os.path.exists("./root/" + fileName):
-    #         return False
-    #     with open("./root/" + fileName):
-    #         pass
-    
-    def deleteFile(self, fileName: str) -> bool:
-        if fileName[:6] == "loader":
-            return False
+    def createFile(self, fileName: str):
         if os.path.exists("./root/" + fileName):
-            os.remove("./root/" + fileName)
-            return True
-        return False
+            return [False, "Arquivo já existe"]
+        with open("./root/" + fileName, 'w'):
+            pass
+        return [True, "Arquivo " + fileName + " criado"]
+    
+    def deleteFile(self, fileName: str):
+        os.remove("./root/" + fileName)
+        return [True, "Arquivo " + fileName + " apagado"]
 
     def render(self) -> RenderableType:
         archives = Tree("root")

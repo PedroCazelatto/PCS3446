@@ -170,27 +170,37 @@ class _cmdLine(Widget):
         return
     
     def cmdCreate(self, cmd: iter):
-        self.printError("Comando não implementado")
+        if len(cmd) != 2:
+            self.printError("Argumentos errados")
+            return
+        if os.path.exists("./root/" + cmd[1]):
+            self.printError("Arquivo já existe")
+            return
+        out = pyLib.virtualDisc.virtualDisc().createFile(cmd[1])
+        pyLib.interface.interface().refresh()
+        if not out[0]:
+            self.printError("Erro: " + out[1])
+            return
+        self.printSuccess(out[1])
         return
     
     def cmdEdit(self, cmd: iter):
-        # try:
-        #     pyLib.assembler.assemble("algo")
-        # except pyLib.assembler.MyValidationError as exception:
-        #     self.printError(exception.args[0])
         self.printError("Comando não implementado")
-        # self.printError(str(list(proc.name for proc in pyLib.processAdmin.processAdmin().processList)))
         return
     
     def cmdDelete(self, cmd: iter):
-        if len(cmd) == 2:
-            if pyLib.virtualDisc.virtualDisc().deleteFile(cmd[1]):
-                self.printSuccess("Deleted " + cmd[1])
-                pyLib.interface.interface().refresh()
-                return
-            self.printError("Falha ao deletar: " + cmd[1])
+        if len(cmd) != 2:
+            self.printError("Argumentos errados")
             return
-        self.printError("Argumentos errados")
+        if not os.path.exists("./root/" + cmd[1]):
+            self.printError("Arquivo não existe")
+            return
+        out = pyLib.virtualDisc.virtualDisc().deleteFile(cmd[1])
+        pyLib.interface.interface().refresh()
+        if not out[0]:
+            self.printError("Erro: " + out[1])
+            return
+        self.printSuccess(out[1])
         return
     
     def cmdClear(self, cmd: iter):
