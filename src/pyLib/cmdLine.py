@@ -1,23 +1,22 @@
 import os
-import time
 
 from rich import box
 from rich.style import Style
 from rich.console import RenderableType
 from rich.text import Text
 from rich.table import Table
-from rich.layout import Layout
 
 from textual import events
 from textual.reactive import Reactive
 from textual.widget import Widget
 
+from pyLib.infoLists import validCommands, keysToIgnore
+
 import pyLib.memory
 import pyLib.assembler
 import pyLib.interface
 import pyLib.virtualDisc
-
-from pyLib.infoLists import validCommands, keysToIgnore
+import pyLib.processAdmin
 
 class _cmdLine(Widget):
     _instance = None
@@ -83,54 +82,91 @@ class _cmdLine(Widget):
         self.printedHistory.append(
             Text(text, style= self.printStyle)
         )
+        self.refresh()
         return
     
     def printError(self, text: str):
         self.printedHistory.append(
             Text(text, style= self.errorStyle)
         )
+        self.refresh()
         return
     
     def printSuccess(self, text: str):
         self.printedHistory.append(
             Text(text, style= self.goodStyle)
         )
+        self.refresh()
         return
     
     def cmdAssemble(self, cmd: iter):
-        if len(cmd) == 2:
-            returned = pyLib.assembler.assemble(cmd[1])
-            if returned[0]:
-                self.printSuccess(returned[1])
-                return
-            self.printError(returned[1])
+        if len(cmd) != 2:
+            self.printError("Argumentos errados")
             return
-        self.printError("Argumentos errados")
+        if cmd[1][-4:] != ".qck":
+            self.printError("Arquivo não é '.qck'")
+            return
+        if not os.path.exists("./root/" + cmd[1]):
+            self.printError("Arquivo não existe")
+            return
+        out = pyLib.assembler.assemble("./root/" + cmd[1])
+        if not out[0]:
+            self.printError("Erro: " + out[1])
+            return
+        self.printSuccess(out[1])
         return
     
     def cmdLoad(self, cmd: iter):
-        if len(cmd) == 2:
-            returned = pyLib.memory.memory().loadApp(cmd[1])
-            if returned[0]:
-                self.printSuccess(returned[1])
-                return
-            self.printError(returned[1])
+        if len(cmd) != 2:
+            self.printError("Argumentos errados")
             return
-        self.printError("Argumentos errados")
+        if cmd[1][-5:] != ".fita":
+            self.printError("Arquivo não é '.fita'")
+            return
+        if not os.path.exists("./root/" + cmd[1]):
+            self.printError("Arquivo não existe")
+            return
+        out = pyLib.memory.memory().loadApp(cmd[1])
+        if not out[0]:
+            self.printError("Erro: " + out[1])
+            return
+        self.printSuccess(out[1])
         return
     
     def cmdUnload(self, cmd: iter):
-        if len(cmd) == 2:
-            if pyLib.memory.memory().unloadApp(cmd[1]):
-                self.printSuccess("Unloaded " + cmd[1])
-                return
-            self.printError("Falha ao descarregar: " + cmd[1])
+        if len(cmd) != 2:
+            self.printError("Argumentos errados")
             return
-        self.printError("Argumentos errados")
+        out = pyLib.memory.memory().unloadApp(cmd[1])
+        if not out[0]:
+            self.printError("Erro: " + out[1])
+            return
+        self.printSuccess(out[1])
+        return
+    
+    def cmdDump(self, cmd: iter):
+        if len(cmd) != 2:
+            self.printError("Argumentos errados")
+            return
+        if not pyLib.memory.memory().isLoaded(cmd[1]):
+            self.printError("Aplicativo não carregado na memória")
+            return
+        pyLib.memory.memory().dumpMemory(cmd[1])
+        self.printSuccess("Dumped " + cmd[1] + " para dump_" + cmd[1] + ".txt")
         return
     
     def cmdRun(self, cmd: iter):
-        self.printError("Comando não implementado")
+        if len(cmd) != 2:
+            self.printError("Argumentos errados")
+            return
+        if pyLib.processAdmin.processAdmin().isProcessAdded(cmd[1]):
+            self.printError("Aplicativo já está em execução")
+            return
+        if not pyLib.memory.memory().isLoaded(cmd[1]):
+            self.cmdLoad(cmd)
+        appInfo = pyLib.memory.memory().getAppInfo(cmd[1])
+        pyLib.processAdmin.processAdmin().createProcess(cmd[1], "Pronto", appInfo[0])
+        self.printSuccess("Adicionado " + cmd[1] + " a fila de processos") 
         return
     
     def cmdCreate(self, cmd: iter):
@@ -138,7 +174,12 @@ class _cmdLine(Widget):
         return
     
     def cmdEdit(self, cmd: iter):
+        # try:
+        #     pyLib.assembler.assemble("algo")
+        # except pyLib.assembler.MyValidationError as exception:
+        #     self.printError(exception.args[0])
         self.printError("Comando não implementado")
+        # self.printError(str(list(proc.name for proc in pyLib.processAdmin.processAdmin().processList)))
         return
     
     def cmdDelete(self, cmd: iter):
@@ -169,6 +210,8 @@ class _cmdLine(Widget):
             self.cmdLoad(cmd)
         elif cmd[0] == "unload":
             self.cmdUnload(cmd)
+        elif cmd[0] == "dump":
+            self.cmdDump(cmd)
         elif cmd[0] == "run":
             self.cmdRun(cmd)
         elif cmd[0] == "create":
