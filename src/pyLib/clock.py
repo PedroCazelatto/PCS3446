@@ -1,19 +1,20 @@
 from time import sleep
 from threading import Thread
 
+from pyLib.configs import *
+
 import pyLib.interface
 import pyLib.processAdmin
 
 class _clock():
     _instance = None
-    clocksPerSecond = 4
     runClock = True
     
     def startClock(self):
         while self.runClock:
             pyLib.processAdmin.processAdmin().clockRise()
             pyLib.interface.interface().refresh()
-            sleep(1/self.clocksPerSecond)
+            sleep(1/clocksPerSecond)
             
     def start(self):
         Thread(target= self.startClock).start()
