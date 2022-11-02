@@ -33,6 +33,7 @@ start:
     BEQ saveInst
     LDA inst
     ADD baseAddr
+    STA inst
     JMP saveInst
 aHalt:
     LDA one
