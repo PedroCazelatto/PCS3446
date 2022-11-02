@@ -6,14 +6,14 @@ import pyLib.processAdmin
 
 class _clock():
     _instance = None
-    clockPeriod = 1
+    clocksPerSecond = 4
     runClock = True
     
     def startClock(self):
         while self.runClock:
             pyLib.processAdmin.processAdmin().clockRise()
             pyLib.interface.interface().refresh()
-            sleep(self.clockPeriod)
+            sleep(1/self.clocksPerSecond)
             
     def start(self):
         Thread(target= self.startClock).start()
