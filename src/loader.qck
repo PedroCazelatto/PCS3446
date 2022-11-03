@@ -13,6 +13,8 @@ instAddr: .word 500
 BEGIN
     LDA baseAddr
     STA instAddr
+    LDA zero
+    STA halted
 start:
     SET 4
     LDA instAddr

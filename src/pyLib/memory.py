@@ -134,8 +134,8 @@ class _memory(Widget):
             self.actualMemory[memoryStartPos + i] = file[i]
         self.filledSpace += fileLen
         self.refresh()
-        self.actualMemory[38] = toBin(memoryStartPos, 32)
-        self.actualMemory[39] = toBin(fileLen, 32)
+        self.actualMemory[40] = toBin(memoryStartPos, 32)
+        self.actualMemory[41] = toBin(fileLen, 32)
         pyLib.processAdmin.processAdmin().runLoader()
         return [True, "Carregando " + appName[:-5] + " na memória"]
     

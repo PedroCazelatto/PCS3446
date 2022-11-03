@@ -24,7 +24,6 @@ class _processAdmin(Widget):
     boldStyle = Style(bold= True)
     
     waitingProcess = pyLib.generalProcess.process("Espera", "Bloqueado", -1)
-    loaderProcess = pyLib.generalProcess.process("Loader", "Bloqueado", 0)
     
     def clockRise(self):
         if not self.isLoading:
@@ -110,7 +109,7 @@ class _processAdmin(Widget):
             if process.name == "Loader":
                 loaderIdx = idx
                 break
-        pyLib.processor.cpu().setProcess(self.loaderProcess)
+        pyLib.processor.cpu().setProcess(pyLib.generalProcess.process("Loader", "Bloqueado", 0))
         self.processList.pop(loaderIdx)
         return
     
