@@ -79,14 +79,19 @@ class _cpu():
             for i in range(numberChars):
                 byteRead = int(word[8*(i+1):8*(i+2)], base= 2)
                 if byteRead != 0:
+                    if chr(byteRead) == '-':
+                        continue
                     number = 10*number + int(chr(byteRead))
             self.actualProcess.accumulator = number
         elif opcode == "INP":
-            self.actualProcess.state = "Entrada"
-            pyLib.cmdLine.cmdLine().inputAddresses.append([operand, self.actualProcess.name])
-            self.actualProcess.programCounter += 1
-            pyLib.processAdmin.processAdmin().stopCurrentProcess()
-            return
+            inputFile = pyLib.memory.memory().getAppInfo(self.actualProcess.name)[2]
+            if inputFile == '':
+                self.actualProcess.state = "Entrada"
+                pyLib.cmdLine.cmdLine().inputAddresses.append([operand, self.actualProcess.name])
+                self.actualProcess.programCounter += 1
+                pyLib.processAdmin.processAdmin().stopCurrentProcess()
+                return
+            pyLib.cmdLine.cmdLine().inputFromFile(inputFile, operand)
         elif opcode == "OUT":
             numberChars = int(pyLib.memory.memory().readMemory(operand)[:8], base= 2)
             word = ''
@@ -94,8 +99,10 @@ class _cpu():
                 word += pyLib.memory.memory().readMemory(operand + i)
             toPrint = self.actualProcess.name + "> "
             for i in range(numberChars):
-                toPrint += chr(int(word[8*(i+1):8*(i+2)], base= 2))
-            pyLib.cmdLine.cmdLine().printExit(toPrint)
+                unicode = word[8*(i+1):8*(i+2)]
+                if unicode != "00000000":
+                    toPrint += chr(int(unicode, base= 2))
+            pyLib.cmdLine.cmdLine().printOutput(self.actualProcess.name, toPrint)
         elif opcode == "CMP":
             if self.actualProcess.accumulator - int(pyLib.memory.memory().readMemory(operand), base= 2) == 0:
                 self.actualProcess.flagZ = 1

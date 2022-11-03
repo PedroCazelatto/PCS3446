@@ -1,13 +1,14 @@
 helpContents = [
-    "Monta arquivo .qck em .fita",
-    "Carrega .fita na memória",
-    "Descarrega .fita da memória",
-    "Mostra programa na memória",
-    "Adiciona processo",
-    "Cria arquivo em disco",
+    "Monta arquivo .qck em .fita\n assemble [i]arquivo.qck",
+    "Carrega .fita na memória\n load [i]arquivo.fita",
+    "Descarrega .fita da memória\n unload [i]programa",
+    "Mostra ocupação da memória\n dump\n dump [i]programa[/i]",
+    "Inicia execução de programa\n run [i]programa",
+    "Especifica arquivo para IO\n set [i]programa[/i] in  [i]file.txt[/i]\n set [i]programa[/i] out [i]file.txt",
+    "Cria arquivo em disco\n create [i]file",
     # "Edita arquivo em disco",
-    "Apaga arquivo em disco",
-    "Limpa o terminal",
+    "Apaga arquivo em disco\n delete [i]file",
+    "Limpa o terminal\n clear",
 ]
 
 validCommands = [
@@ -16,6 +17,7 @@ validCommands = [
     "unload",
     "dump",
     "run",
+    "set",
     "create",
     # "edit",
     "delete",

@@ -1,4 +1,5 @@
 import os
+import time
 
 from rich import box
 from rich.style import Style
@@ -82,11 +83,57 @@ class _cmdLine(Widget):
             self.y += 1
         self.line = Text("cmd> ").append(self.cmdText[:self.y]).append("_", style=Style(blink=True)).append(self.cmdText[self.y:])
     
-    def printExit(self, text: str):
-        self.printedHistory.append(
-            Text(text, style= self.printStyle)
-        )
-        self.refresh()
+    def inputFromFile(self, inputFile: str, operand: int):
+        lines = list()
+        with open(inputFile) as file:
+            for line in file:
+                lines.append(line[:-1])
+        for idx, line in enumerate(lines):
+            if line[0] != '*':
+                try:
+                    int(line)
+                except:
+                    lines[idx] = '*' + line
+                    continue
+                actualInput = line
+                lines[idx] = '*' + line
+                break
+        size = int(pyLib.memory.memory().readMemory(operand)[:8], base= 2)
+        wordsToSave = toASCII(actualInput, size)
+        for idx, word in enumerate(wordsToSave):
+            pyLib.memory.memory().writeMemory(operand + idx, word)
+        with open(inputFile, 'w') as file:
+            for line in lines:
+                file.write(line + '\n')
+    
+    def inputFromCmd(self, text: str):
+        try:
+            int(text)
+        except:
+            self.printError("Digite apenas um número")
+            return
+        operand, name = self.inputAddresses.pop(0)
+        size = int(pyLib.memory.memory().readMemory(operand)[:8], base= 2)
+        wordsToSave = toASCII(text, size)
+        for idx, word in enumerate(wordsToSave):
+            pyLib.memory.memory().writeMemory(operand + idx, word)
+        if pyLib.processAdmin.processAdmin().isProcessAdded(name):
+            pyLib.processAdmin.processAdmin().changeProcessState(name, "Pronto")
+        else:
+            self.printError("Processo " + name + " desapareceu!")
+        return
+    
+    def printOutput(self, appName: str, text: str):
+        outputFile = pyLib.memory.memory().getAppInfo(appName)[3]
+        if outputFile == '':
+            self.printedHistory.append(
+                Text(text, style= self.printStyle)
+            )
+            self.refresh()
+            return
+        currentTime = time.strftime("%H:%M:%S", time.localtime())
+        with open(outputFile, 'a') as file:
+            file.write(currentTime + " " + text + "\n")
         return
     
     def printError(self, text: str):
@@ -149,6 +196,9 @@ class _cmdLine(Widget):
         return
     
     def cmdDump(self, cmd: iter):
+        if len(cmd) == 1:
+            self.printError("Ainda não implementado")
+            return
         if len(cmd) != 2:
             self.printError("Argumentos errados")
             return
@@ -168,11 +218,49 @@ class _cmdLine(Widget):
             return
         if not pyLib.memory.memory().isLoaded(cmd[1]):
             self.cmdLoad(["load", cmd[1] + ".fita"])
+        if not pyLib.memory.memory().isLoaded(cmd[1]):
+            return
         appInfo = pyLib.memory.memory().getAppInfo(cmd[1])
         pyLib.processAdmin.processAdmin().createProcess(cmd[1], "Pronto", appInfo[0])
         self.printSuccess("Adicionado " + cmd[1] + " a fila de processos") 
         return
     
+    def cmdSet(self, cmd: iter):
+        if len(cmd) != 4:
+            self.printError("Argumentos errados")
+            return
+        cmd[2] = cmd[2].lower()
+        if cmd[2] != "in" and cmd[2] != "out":
+            self.printError("Defina in ou out")
+            return
+        if not pyLib.memory.memory().isLoaded(cmd[1]):
+            self.printError("Aplicativo não carregado na memória")
+            return
+        if cmd[2] == "in":
+            if cmd[3].lower() == "cmd":
+                pyLib.memory.memory().setAppInput(cmd[1], '')
+                self.printSuccess("Entrada de " + cmd[1] + " a partir do CMD")
+                return
+            if not os.path.exists("./root/" + cmd[3]):
+                self.printError("Arquivo não existe!")
+                return
+            pyLib.memory.memory().setAppInput(cmd[1], "./root/" + cmd[3])
+            self.printSuccess("Entrada de " + cmd[1] + " a partir de " + cmd[3])
+            return
+        if cmd[2] == "out":
+            if cmd[3].lower() == "cmd":
+                pyLib.memory.memory().setAppOutput(cmd[1], '')
+                self.printSuccess("Saída de " + cmd[1] + " a partir do CMD")
+                return
+            if not os.path.exists("./root/" + cmd[3]):
+                with open("./root/" + cmd[3], 'w'):
+                    pass
+                return
+            pyLib.memory.memory().setAppOutput(cmd[1], "./root/" + cmd[3])
+            self.printSuccess("Saída de " + cmd[1] + " a partir de " + cmd[3])
+            return
+        return
+            
     def cmdCreate(self, cmd: iter):
         if len(cmd) != 2:
             self.printError("Argumentos errados")
@@ -219,21 +307,10 @@ class _cmdLine(Widget):
             if len(self.inputAddresses) == 0:
                 self.printError("Comando inexistente")
                 return
-            phrase = ''.join(cmd)
-            try:
-                int(phrase)
-            except:
-                self.printError("Digite apenas números!")
+            if len(cmd) != 1:
+                self.printError("Digite apenas um número")
                 return
-            operand, name = self.inputAddresses.pop(0)
-            size = int(pyLib.memory.memory().readMemory(operand)[:8], base= 2)
-            wordsToSave = toASCII(phrase, size)
-            for idx, word in enumerate(wordsToSave):
-                pyLib.memory.memory().writeMemory(operand + idx, word)
-            if pyLib.processAdmin.processAdmin().isProcessAdded(name):
-                pyLib.processAdmin.processAdmin().changeProcessState(name, "Pronto")
-            else:
-                self.printError("Processo " + name + " desapareceu!")
+            self.inputFromCmd(cmd[0])
         elif cmd[0] == "assemble":
             self.cmdAssemble(cmd)
         elif cmd[0] == "load":
@@ -244,6 +321,8 @@ class _cmdLine(Widget):
             self.cmdDump(cmd)
         elif cmd[0] == "run":
             self.cmdRun(cmd)
+        elif cmd[0] == "set":
+            self.cmdSet(cmd)
         elif cmd[0] == "create":
             self.cmdCreate(cmd)
         elif cmd[0] == "edit":

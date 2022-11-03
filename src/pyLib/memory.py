@@ -47,6 +47,20 @@ class _memory(Widget):
         idx = self.loadedAppsList.index(appName)
         return self.loadedAppsInfo[idx]
     
+    def setAppInput(self, appName: str, file: str):
+        for idx, name in enumerate(self.loadedAppsList):
+            if name == appName:
+                break
+        self.loadedAppsInfo[idx][2] = file
+        return
+    
+    def setAppOutput(self, appName: str, file: str):
+        for idx, name in enumerate(self.loadedAppsList):
+            if name == appName:
+                break
+        self.loadedAppsInfo[idx][3] = file
+        return
+    
     def readMemory(self, address: int) -> str:
         return self.actualMemory[address]
     
@@ -55,7 +69,7 @@ class _memory(Widget):
         return
     
     def dumpMemory(self, appName: str):
-        start, length = self.getAppInfo(appName)
+        start, length = self.getAppInfo(appName)[:2]
         with open("./root/dump_" + appName + ".txt", 'w') as dumping:
             for i in range(length):
                 dumping.write(self.readMemory(start + i) + '\n')
@@ -98,7 +112,9 @@ class _memory(Widget):
         self.loadedAppsList.append("Loader")
         self.loadedAppsInfo.append([
             memoryStartPos,
-            fileLen
+            fileLen,
+            '',
+            ''
         ])
         for i in range(fileLen):
             self.actualMemory[memoryStartPos + i] = file[i]
@@ -110,7 +126,6 @@ class _memory(Widget):
     def loadApp(self, appName: str):
         if self.isLoaded(appName):
             return [False, "Aplicativo já está na memória"]
-        # if os.path.exists("./root/" + appName):
         file = self.parse_binary("./root/" + appName)
         fileLen = len(file)
         memoryStartPos = -1
@@ -128,7 +143,9 @@ class _memory(Widget):
         self.loadedAppsList.append(appName[:-5])
         self.loadedAppsInfo.append([
             memoryStartPos,
-            fileLen
+            fileLen,
+            '',
+            ''
         ])
         for i in range(fileLen):
             self.actualMemory[memoryStartPos + i] = file[i]
@@ -146,7 +163,7 @@ class _memory(Widget):
             return [False, "Não é possivel descarregar o Loader"]
         index = self.loadedAppsList.index(appName)
         self.loadedAppsList.remove(appName)
-        self.unusedSpace.append(self.loadedAppsInfo[index])
+        self.unusedSpace.append(self.loadedAppsInfo[index].copy())
         self.memoryUnifier()
         self.filledSpace -= self.loadedAppsInfo[index][1]
         self.loadedAppsInfo.pop(index)
