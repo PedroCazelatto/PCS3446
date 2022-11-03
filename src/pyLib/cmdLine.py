@@ -10,6 +10,7 @@ from textual import events
 from textual.reactive import Reactive
 from textual.widget import Widget
 
+from pyLib.usefulFuncs import *
 from pyLib.infoLists import validCommands, keysToIgnore
 
 import pyLib.memory
@@ -32,6 +33,9 @@ class _cmdLine(Widget):
     errorStyle = Style(color= "red1", bold= True)
     goodStyle = Style(color= "green1", bold= True)
     printStyle = Style(color= "cadet_blue", bold= True)
+    
+    linesToInput = 0
+    inputAddresses = list()
         
     def on_key(self, event: events.Key):
         if keysToIgnore.count(event.key) == 1:
@@ -212,9 +216,25 @@ class _cmdLine(Widget):
     def commands(self, cmd: iter):
         cmd[0] = cmd[0].lower()
         if validCommands.count(cmd[0]) == 0:
-            self.printError("Comando inexistente")
-            return
-        if cmd[0] == "assemble":
+            if len(self.inputAddresses) == 0:
+                self.printError("Comando inexistente")
+                return
+            phrase = ''.join(cmd)
+            try:
+                int(phrase)
+            except:
+                self.printError("Digite apenas números!")
+                return
+            operand, name = self.inputAddresses.pop(0)
+            size = int(pyLib.memory.memory().readMemory(operand)[:8], base= 2)
+            wordsToSave = toASCII(phrase, size)
+            for idx, word in enumerate(wordsToSave):
+                pyLib.memory.memory().writeMemory(operand + idx, word)
+            if pyLib.processAdmin.processAdmin().isProcessAdded(name):
+                pyLib.processAdmin.processAdmin().changeProcessState(name, "Pronto")
+            else:
+                self.printError("Processo " + name + " desapareceu!")
+        elif cmd[0] == "assemble":
             self.cmdAssemble(cmd)
         elif cmd[0] == "load":
             self.cmdLoad(cmd)
@@ -232,6 +252,7 @@ class _cmdLine(Widget):
             self.cmdDelete(cmd)
         elif cmd[0] == "clear":
             self.cmdClear(cmd)
+        return
     
     def on_focus(self) -> None:
         self.line = Text("cmd> ").append(self.cmdText).append("_", style=Style(blink=True))

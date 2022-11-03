@@ -47,10 +47,18 @@ class _processAdmin(Widget):
     def isProcessAdded(self, processName):
         if pyLib.processor.cpu().getProcess().name == processName:
             return True
-        for idx, seq in enumerate(self.processList):
-            if seq.name == processName:
+        for process in self.processList:
+            if process.name == processName:
                 return True
         return False
+    
+    def changeProcessState(self, processName: str, newState: str):
+        for idx, proc in enumerate(self.processList):
+            if proc.name == processName:
+                self.processList[idx].state = newState
+                self.sortProcess()
+                return
+        return
     
     def createProcess(self, processName: str, state: str, baseAddress: int):
         self.processList.insert(0, pyLib.generalProcess.process(processName, state, baseAddress))
@@ -65,7 +73,7 @@ class _processAdmin(Widget):
         return total
     
     def selectExecutionProcess(self):
-        for i in range(multiprogrammingDegree):
+        for i in range(min(multiprogrammingDegree, len(self.processList))):
             if self.processList[i].state == "Pronto":
                 self.processList[i].state = "Executando"
         return

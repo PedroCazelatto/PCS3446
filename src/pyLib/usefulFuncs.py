@@ -15,3 +15,16 @@ def toHex(integer: int, size: int) -> str:
     for i in range(len(expandedHex)-1, 0, -2):
         separetedHex = expandedHex[i-1] + expandedHex[i] + ' ' + separetedHex
     return separetedHex
+
+def toASCII(phrase: str, size: int):
+    wordsList = list()
+    word = toBin(size, 8)
+    for i in range(size):
+        if i < len(phrase):
+            word += toBin(ord(phrase[i]), 8)
+        else:
+            word += ('0' * 8)
+        if i % 4 == 2:
+            wordsList.append(int(word, base= 2))
+            word = ''
+    return wordsList

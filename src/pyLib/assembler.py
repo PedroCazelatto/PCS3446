@@ -22,7 +22,7 @@ def assemble(inputFile: str):
             file.append(line)
 
     for i in range(len(file)):
-        file[i] = file[i].split()
+        file[i] = file[i].split(maxsplit= 2)
         
     if file.count(["BEGIN"]) == 0:
         return [False, "File doesn't have BEGIN"]
@@ -58,8 +58,8 @@ def assemble(inputFile: str):
                 continue
             if line[1] == ".text":
                 labels.append(line[0][:-1])
-                realText = ' '.join(line[2:])
-                labelValues.append([len(realText) - 2, list(realText[1:-1].encode('ascii'))])
+                textSize = 3 + ((len(line[2]) - 2) // 4) * 4
+                labelValues.append([textSize, list(line[2][1:-1].encode('ascii'))])
                 continue
         if pyLib.infoLists.operations.count(line[0]) == 0:
             return [False, "Wrong instruction at line " + str(idx + 1)]
@@ -75,7 +75,7 @@ def assemble(inputFile: str):
         if isinstance(value, int):
             continue
         memoryPos.append(dataStart)
-        dataStart += value[0]
+        dataStart += (value[0] + 1) //4
         
     for idx, inst in enumerate(instructions):
         if inst[0] == "HLT" or inst[0] == "NEG" or inst[0] == "NOT":
@@ -110,11 +110,11 @@ def assemble(inputFile: str):
             if isinstance(value, int):
                 continue
             f.write(toBin(value[0], 8))
-            for i in range(value[0]):
+            for i in range(len(value[1])):
                 f.write(toBin(value[1][i], 8))
                 if (i+2) % 4 == 0:
                     f.write("\n")
-            bytesToComplete = 3 - (value[0] % 4)
+            bytesToComplete = 3 - (len(value[1]) % 4)
             if bytesToComplete > 0:
                 f.write(toBin(0, bytesToComplete * 8) + "\n")
     

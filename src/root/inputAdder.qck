@@ -1,0 +1,20 @@
+start: .word 0
+inc: .word 1
+stop: .word 10
+stopT: .text '123'
+saida: .text '000'
+pergunta: .text 'Digite um numero: '
+BEGIN
+    OUT pergunta
+    INP stopT
+    WRD stopT
+    STA stop
+    LDA start
+loop:
+    ADD inc
+    TXT saida
+    OUT saida
+    CMP stop
+    BNE loop
+    HLT
+END

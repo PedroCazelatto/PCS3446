@@ -65,39 +65,34 @@ class _cpu():
             self.actualProcess.accumulator ^= int(pyLib.memory.memory().readMemory(operand), base= 2)
         elif opcode == "TXT":
             number = str(self.actualProcess.accumulator)
-            textLen = len(number)
-            word = toBin(textLen, 8)
-            for i in range(textLen):
-                char = toBin(ord(number[i]), 8)
-                if i % 4 != 3:
-                    word += char
-                else:
-                    value = int(word, base= 2)
-                    pyLib.memory.memory().writeMemory(operand + i // 4, value)
-                    word = ''
-            if textLen % 4 != 3:
-                word += (('0' * 8) * (3 - textLen % 4))
-            value = int(word, base= 2)
-            pyLib.memory.memory().writeMemory(operand + textLen // 4, value)
+            size = int(pyLib.memory.memory().readMemory(operand)[:8], base= 2)
+            wordsToSave = toASCII(number, size)
+            for idx, word in enumerate(wordsToSave):
+                pyLib.memory.memory().writeMemory(operand + idx, word)
         elif opcode == "WRD":
-            firstWord = pyLib.memory.memory().readMemory(operand)
-            numberChars = int(firstWord[:8], base= 2)
+            numberChars = int(pyLib.memory.memory().readMemory(operand)[:8], base= 2)
             word = ''
             for i in range(numberChars // 4+1):
                 word += pyLib.memory.memory().readMemory(operand + i)
             number = 0
+            idx = 0
             for i in range(numberChars):
-                number = 10*number + int(chr(int(word[8*(i+1):8*(i+2)], base= 2)))
+                byteRead = int(word[8*(i+1):8*(i+2)], base= 2)
+                if byteRead != 0:
+                    number = 10*number + int(chr(byteRead))
             self.actualProcess.accumulator = number
         elif opcode == "INP":
-            pass
+            self.actualProcess.state = "Entrada"
+            pyLib.cmdLine.cmdLine().inputAddresses.append([operand, self.actualProcess.name])
+            self.actualProcess.programCounter += 1
+            pyLib.processAdmin.processAdmin().stopCurrentProcess()
+            return
         elif opcode == "OUT":
-            firstWord = pyLib.memory.memory().readMemory(operand)
-            numberChars = int(firstWord[:8], base= 2)
+            numberChars = int(pyLib.memory.memory().readMemory(operand)[:8], base= 2)
             word = ''
             for i in range(numberChars // 4 +1):
                 word += pyLib.memory.memory().readMemory(operand + i)
-            toPrint = ''
+            toPrint = self.actualProcess.name + "> "
             for i in range(numberChars):
                 toPrint += chr(int(word[8*(i+1):8*(i+2)], base= 2))
             pyLib.cmdLine.cmdLine().printExit(toPrint)
