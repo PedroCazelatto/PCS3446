@@ -76,6 +76,8 @@ operations = [
     "BNE", # 19 PC = oper if Z = 0
     "JMP", # 20 PC = oper
     "SET", # 21 Flags (I N Z) = oper
+    "BLT", # 22 PC = oper if N = 1 and Z = 0
+    "BGT", # 23 PC = oper if N = 0 and Z = 0
     # "POW", # ACC = ACC ** oper
     # "MOV", # ACC = oper
 ]

@@ -32,10 +32,10 @@ class _cpu():
             return
         elif opcode == "LDA":
             if self.actualProcess.flagI == 0:
-                self.actualProcess.accumulator = int(pyLib.memory.memory().readMemory(operand), base= 2)
+                self.actualProcess.accumulator = twoComp(pyLib.memory.memory().readMemory(operand), 32)
             else:
                 address = int(pyLib.memory.memory().readMemory(operand), base= 2)
-                self.actualProcess.accumulator = int(pyLib.memory.memory().readMemory(address), base= 2)
+                self.actualProcess.accumulator = twoComp(pyLib.memory.memory().readMemory(address), 32)
         elif opcode == "STA":
             if self.actualProcess.flagI == 0:
                 pyLib.memory.memory().writeMemory(operand, self.actualProcess.accumulator)
@@ -45,23 +45,23 @@ class _cpu():
         elif opcode == "NEG":
             self.actualProcess.accumulator = - self.actualProcess.accumulator
         elif opcode == "ADD":
-            self.actualProcess.accumulator += int(pyLib.memory.memory().readMemory(operand), base= 2)
+            self.actualProcess.accumulator += twoComp(pyLib.memory.memory().readMemory(operand), 32)
         elif opcode == "SUB":
-            self.actualProcess.accumulator -= int(pyLib.memory.memory().readMemory(operand), base= 2)
+            self.actualProcess.accumulator -= twoComp(pyLib.memory.memory().readMemory(operand), 32)
         elif opcode == "MUL":
-            self.actualProcess.accumulator *= int(pyLib.memory.memory().readMemory(operand), base= 2)
+            self.actualProcess.accumulator *= twoComp(pyLib.memory.memory().readMemory(operand), 32)
         elif opcode == "DIV":
-            self.actualProcess.accumulator //= int(pyLib.memory.memory().readMemory(operand), base= 2)
+            self.actualProcess.accumulator //= twoComp(pyLib.memory.memory().readMemory(operand), 32)
         elif opcode == "REM":
-            self.actualProcess.accumulator %= int(pyLib.memory.memory().readMemory(operand), base= 2)
+            self.actualProcess.accumulator %= twoComp(pyLib.memory.memory().readMemory(operand), 32)
         elif opcode == "AND":
-            self.actualProcess.accumulator &= int(pyLib.memory.memory().readMemory(operand), base= 2)
+            self.actualProcess.accumulator &= twoComp(pyLib.memory.memory().readMemory(operand), 32)
         elif opcode == "ORR":
-            self.actualProcess.accumulator |= int(pyLib.memory.memory().readMemory(operand), base= 2)
+            self.actualProcess.accumulator |= twoComp(pyLib.memory.memory().readMemory(operand), 32)
         elif opcode == "NOT":
             self.actualProcess.accumulator = ~ self.actualProcess.accumulator
         elif opcode == "XOR":
-            self.actualProcess.accumulator ^= int(pyLib.memory.memory().readMemory(operand), base= 2)
+            self.actualProcess.accumulator ^= twoComp(pyLib.memory.memory().readMemory(operand), 32)
         elif opcode == "TXT":
             number = str(self.actualProcess.accumulator)
             size = int(pyLib.memory.memory().readMemory(operand)[:8], base= 2)
@@ -103,9 +103,9 @@ class _cpu():
                     toPrint += chr(int(unicode, base= 2))
             pyLib.cmdLine.cmdLine().printOutput(self.actualProcess.name, toPrint)
         elif opcode == "CMP":
-            if self.actualProcess.accumulator - int(pyLib.memory.memory().readMemory(operand), base= 2) == 0:
+            if self.actualProcess.accumulator - twoComp(pyLib.memory.memory().readMemory(operand), 32) == 0:
                 self.actualProcess.flagZ = 1
-            if self.actualProcess.accumulator - int(pyLib.memory.memory().readMemory(operand), base= 2) < 0:
+            if self.actualProcess.accumulator - twoComp(pyLib.memory.memory().readMemory(operand), 32) < 0:
                 self.actualProcess.flagN = 1
         elif opcode == "BEQ":
             if self.actualProcess.flagZ == 1:
@@ -123,6 +123,14 @@ class _cpu():
             self.actualProcess.flagI = int(bits[0])
             self.actualProcess.flagN = int(bits[1])
             self.actualProcess.flagZ = int(bits[2])
+        elif opcode == "BLT":
+            if self.actualProcess.flagN == 1 and self.actualProcess.flagZ == 0:
+                self.actualProcess.programCounter = operand
+                return
+        elif opcode == "BGT":
+            if self.actualProcess.flagN == 0 and self.actualProcess.flagZ == 0:
+                self.actualProcess.programCounter = operand
+                return
         self.actualProcess.programCounter += 1
         return
 

@@ -3,6 +3,11 @@ import numpy as np
 def toBin(integer: int, size: int) -> str:
     return np.binary_repr(integer, size)
 
+def twoComp(binary: str, size: int) -> int:
+    if binary[0] == '0':
+        return int(binary, base= 2)
+    return int(binary, base= 2) - 2**size
+
 def toInt(integer: int, size: int) -> str:
     leadZeros = ' ' * (size - len(str(integer)))
     return leadZeros + str(integer)
