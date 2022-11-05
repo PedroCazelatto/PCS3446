@@ -1,0 +1,29 @@
+um: .word 1
+root: .word 1
+number: .word 0
+numberT: .text '0000123'
+saida: .text '000000'
+pergunta: .text 'Digite um numero: '
+resposta: .text 'A raiz inteira e '
+BEGIN
+    OUT pergunta
+    INP numberT
+    WRD numberT
+    STA number
+    LDA um
+loop:
+    MUL root
+    CMP number
+    BGT fim
+    LDA root
+    ADD um
+    STA root
+    JMP loop
+fim:
+    LDA root
+    SUB um
+    TXT saida
+    OUT resposta
+    OUT saida
+    HLT
+END

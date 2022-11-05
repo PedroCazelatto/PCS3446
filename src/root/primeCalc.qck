@@ -1,0 +1,39 @@
+zero: .word 0
+um: .word 1
+dois: .word 2
+test: .word 3
+number: .word 0
+numberT: .text '0000123'
+pergunta: .text 'Digite um numero: '
+sim: .text 'O numero eh primo!'
+nao: .text 'O numero nao eh primo!'
+BEGIN
+    OUT pergunta
+    INP numberT
+    WRD numberT
+    STA number
+    CMP um
+    BEQ negativo
+    CMP dois
+    BEQ positivo
+    REM dois
+    CMP zero
+    BEQ negativo
+loop:
+    LDA number
+    CMP test
+    BEQ positivo
+    REM test
+    CMP zero
+    BEQ negativo
+    LDA test
+    ADD dois
+    STA test
+    JMP loop
+positivo:
+    OUT sim
+    HLT
+negativo:
+    OUT nao
+    HLT
+END
