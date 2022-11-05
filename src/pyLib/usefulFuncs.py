@@ -1,7 +1,7 @@
+import numpy as np
+
 def toBin(integer: int, size: int) -> str:
-    number = bin(integer)[2:]
-    leadZeros = '0' * (size - len(number))
-    return leadZeros + number
+    return np.binary_repr(integer, size)
 
 def toInt(integer: int, size: int) -> str:
     leadZeros = ' ' * (size - len(str(integer)))
