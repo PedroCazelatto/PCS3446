@@ -1,9 +1,10 @@
 import os
 
+from rich.tree import Tree
+from rich.text import Text
 from rich.style import Style
 from rich.panel import Panel
 from rich.console import RenderableType
-from rich.tree import Tree
 
 from textual.widget import Widget
 
@@ -22,7 +23,7 @@ class _virtualDisc(Widget):
         return [True, "Arquivo " + fileName + " apagado"]
 
     def render(self) -> RenderableType:
-        archives = Tree("root")
+        archives = Tree(Text("root", style= Style(bold= True)))
         for arch in os.scandir("./root"):
             if arch.is_file():
                 if arch.name[:6] ==  "loader":

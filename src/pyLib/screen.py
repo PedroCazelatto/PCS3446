@@ -40,7 +40,7 @@ class screen(App):
         homeGrid = await self.view.dock_grid()
         
         homeGrid.add_row("row1")
-        homeGrid.add_row("row2", size= 12)
+        homeGrid.add_row("row2", size= 10)
         homeGrid.add_column("col")
         homeGrid.place(pyLib.interface.interface(), pyLib.cmdLine.cmdLine())
         

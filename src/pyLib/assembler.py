@@ -1,5 +1,6 @@
 from pyLib.configs import *
 from pyLib.usefulFuncs import *
+
 import pyLib.infoLists
 
 def assemble(inputFile: str):

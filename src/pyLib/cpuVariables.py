@@ -1,14 +1,15 @@
 from rich import box
+from rich.text import Text
 from rich.align import Align
 from rich.style import Style
 from rich.panel import Panel
-from rich.console import RenderableType
 from rich.table import Table
-from rich.text import Text
+from rich.console import RenderableType
 
 from textual.widget import Widget
 
 from pyLib.usefulFuncs import *
+
 import pyLib.processor
 import pyLib.generalProcess
 
@@ -16,9 +17,9 @@ class _cpuVariables(Widget):
     _instance = None
     
     varList = [
-        Text("Acumulador", justify= "center"),
-        Text("Contador de Programa", justify= "center"),
-        Text("Flags (I N Z)", justify= "center"),
+        Text("Acumulador", justify= "center", style= Style(bold= True)),
+        Text("Contador de Programa", justify= "center", style= Style(bold= True)),
+        Text("Flags (I N Z)", justify= "center", style= Style(bold= True)),
     ]
     
     def render(self) -> RenderableType:

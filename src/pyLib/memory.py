@@ -1,10 +1,11 @@
 import os
 
+from rich.text import Text
+from rich.tree import Tree
 from rich.style import Style
 from rich.panel import Panel
-from rich.console import RenderableType
-from rich.tree import Tree
 from rich.table import Table
+from rich.console import RenderableType
 from rich.progress import DownloadColumn, Progress, BarColumn
 
 from textual.widget import Widget
@@ -171,7 +172,7 @@ class _memory(Widget):
         return [True, "Descarregado " + appName]
     
     def getRenderable(self) -> Table:
-        loadedAppsTree = Tree("Memória Principal")
+        loadedAppsTree = Tree(Text("Memória Principal", style= Style(bold= True)))
         for i, app in enumerate(self.loadedAppsList):
             loadedAppsTree.add(app + " [" + self.getBinaryWithSuffix(self.loadedAppsInfo[i][1]*4) + "]")
         renderable = Table(

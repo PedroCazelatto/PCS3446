@@ -2,10 +2,10 @@ import os
 import time
 
 from rich import box
-from rich.style import Style
-from rich.console import RenderableType
 from rich.text import Text
+from rich.style import Style
 from rich.table import Table
+from rich.console import RenderableType
 
 from textual import events
 from textual.reactive import Reactive
@@ -23,7 +23,7 @@ import pyLib.processAdmin
 class _cmdLine(Widget):
     _instance = None
     
-    cmdHeight= 9
+    cmdHeight= 7
     line = Reactive(Text("cmd> "))
     cmdText = ""
     cmdRight = ""

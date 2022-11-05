@@ -1,12 +1,11 @@
+from pyLib.configs import *
+from pyLib.usefulFuncs import *
+from pyLib.infoLists import operations
+
 import pyLib.cmdLine
 import pyLib.memory
 import pyLib.processAdmin
 import pyLib.generalProcess
-
-from pyLib.configs import *
-from pyLib.usefulFuncs import *
-
-from pyLib.infoLists import operations
 
 class _cpu():
     _instance = None

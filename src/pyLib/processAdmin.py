@@ -1,18 +1,16 @@
 from rich.text import Text
-from rich.tree import Tree
 from rich.style import Style
 from rich.panel import Panel
 from rich.table import Table
-from rich.layout import Layout
 from rich.console import RenderableType
 
 from textual.widget import Widget
 
 from pyLib.configs import *
 
+import pyLib.cmdLine
 import pyLib.processor
 import pyLib.generalProcess
-import pyLib.cmdLine
 
 class _processAdmin(Widget):
     _instance = None
@@ -168,7 +166,8 @@ class _processAdmin(Widget):
             expand= True,
             pad_edge= False,
             show_header= False,
-            show_edge= False
+            show_edge= False,
+            style= Style(color= "bright_cyan", bold= True)
         )
         adminTable.add_column(justify= "center")
         adminTable.add_row(Text("Processo Atual:", style= self.boldStyle))
