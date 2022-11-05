@@ -105,8 +105,12 @@ class _cpu():
         elif opcode == "CMP":
             if self.actualProcess.accumulator - twoComp(pyLib.memory.memory().readMemory(operand), 32) == 0:
                 self.actualProcess.flagZ = 1
+            else:
+                self.actualProcess.flagZ = 0
             if self.actualProcess.accumulator - twoComp(pyLib.memory.memory().readMemory(operand), 32) < 0:
                 self.actualProcess.flagN = 1
+            else:
+                self.actualProcess.flagN = 0
         elif opcode == "BEQ":
             if self.actualProcess.flagZ == 1:
                 self.actualProcess.programCounter = operand
