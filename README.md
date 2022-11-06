@@ -3,6 +3,8 @@ Projeto da disciplina PCS3446 - Sistemas Operacionais (2022), da graduação em 
 
 Consiste em uma aplicação que simule um sistema operacional e seus componentes.
 
+![Tela inicial da aplicação](./InitialScreen.png)
+
 # Instruções de Instalação
 
 Primeiro, instale a biblioteca Textual com 
@@ -25,11 +27,15 @@ A aplicação é chamada de PatinhOS, em homenagem ao primeiro computador feito 
 
 ## Processador
 
-O processador é baseado em um único registrador de propósito geral, o acumulador. Instruções e dados possuem 32 bits, sendo 14 bits de opcode e 18 bits de endereçamento direto (operando).
+O processador é baseado em um único registrador de propósito geral, o acumulador. Instruções e dados possuem 32 bits, sendo 5 bits de opcode e 27 bits de operando.
+
+Há possibilidade de execução multiprogramada, com grau configurável em *./src/pyLib/configs.py*.
 
 ## Memória
 
-O sistema possui uma memória principal de 256 KiB, particionada com alocação *First Fit* e sem *Garbage Collection*.
+O sistema possui uma memória principal de tamanho configurável, inicialmente com 1 KiB, particionada com alocação *First Fit* e sem *Garbage Collection*.
+
+Para alterar o tamanho da memória, vá em *./src/pyLib/configs.py* e altere *memoryAddressBits*.
 
 ## Disco Virtual
 
