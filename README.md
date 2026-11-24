@@ -1,42 +1,42 @@
 # PCS3446
-Projeto da disciplina PCS3446 - Sistemas Operacionais (2022), da graduação em Engenharia Elétrica da POLI-USP.
+Project for PCS3446 - Operating Systems (2022), an Electrical Engineering course at POLI-USP.
 
-Consiste em uma aplicação que simule um sistema operacional e seus componentes.
+An application that simulates an operating system and its components.
 
-![Tela inicial da aplicação](./InitialScreen.png)
+![Application start screen](./InitialScreen.png)
 
-# Instruções de Instalação
+# Installation
 
-Primeiro, instale a biblioteca Textual com 
+First, install the Textual library with
 ```
 python3 -m pip install textual
 ```
-Depois, na pasta do projeto, execute
+Then, in the project folder, run
 ```
 cd src
 python3 main.py
 ```
 
-# Descrição Detalhada
+# Detailed description
 
-A aplicação simula um sistema operacional executando em um processador de 32 bits baseado em acumulador, projetado na disciplina PCS3216 - Sistemas de Programação.
+The application simulates an operating system running on a 32-bit accumulator-based processor, designed in the course PCS3216 - Programming Systems.
 
-A aplicação é chamada de PatinhOS, em homenagem ao primeiro computador feito na universidade, Patinho Feio.
+The application is called PatinhOS, after Patinho Feio, the first computer built at the university.
 
 ![PatinhOS logo](./Patinho.png)
 
-## Processador
+## Processor
 
-O processador é baseado em um único registrador de propósito geral, o acumulador. Instruções e dados possuem 32 bits, sendo 5 bits de opcode e 27 bits de operando.
+The processor is based on a single general-purpose register, the accumulator. Instructions and data are 32 bits long: 5 bits of opcode and 27 bits of operand.
 
-Há possibilidade de execução multiprogramada, com grau configurável em *./src/pyLib/configs.py*.
+Multiprogrammed execution is possible, with the degree set in *./src/pyLib/configs.py*.
 
-## Memória
+## Memory
 
-O sistema possui uma memória principal de tamanho configurável, inicialmente com 1 KiB, particionada com alocação *First Fit* e sem *Garbage Collection*.
+The system has a main memory of configurable size, 1 KiB at first, partitioned with *First Fit* allocation and no *Garbage Collection*.
 
-Para alterar o tamanho da memória, vá em *./src/pyLib/configs.py* e altere *memoryAddressBits*.
+To change the memory size, open *./src/pyLib/configs.py* and change *memoryAddressBits*.
 
-## Disco Virtual
+## Virtual disk
 
-A aplicação possui acesso apenas a pasta **./src/root/**, que é onde os arquivos **.qck** e **.fita** deverão ser armazenados. 
+The application can only access the **./src/root/** folder, which is where the **.qck** and **.fita** files must be stored.
